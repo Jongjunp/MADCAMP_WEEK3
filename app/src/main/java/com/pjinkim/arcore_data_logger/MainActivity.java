@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 mSocket.connect();
                 roomNameEnter = _roomNameEnter.getText().toString().trim();
-                mSocket.emit("enter",gson.toJson(new MessageData(id, roomNameEnter, "")));
+                mSocket.emit("enter",gson.toJson(new MessageData(id, roomNameEnter)));
                 _enter.setVisibility(View.INVISIBLE);
                 _search.setVisibility(View.VISIBLE);
                 mSocket.on("refuse", refuse);
@@ -90,23 +91,18 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                     MessageData data = gson.fromJson(args[0].toString(), MessageData.class);
                     pnames = data.pnames;
-                    Toast.makeText(MainActivity.this, pnames[0]+" "+pnames[1] ,Toast.LENGTH_LONG).show();
+                    //Toast.makeText(MainActivity.this, pnames[0]+" "+pnames[1] ,Toast.LENGTH_LONG).show();
                     _enter.setVisibility(View.INVISIBLE);
                     _search.setVisibility(View.INVISIBLE);
                     _ready.setVisibility(View.VISIBLE);
 
-                    //set bundle
-                    Bundle readybundle = new Bundle();
-                    readybundle.putString("id",id);
-                    readybundle.putString("roomid",roomNameEnter);
 
                     //when ready button pressed
                     _readyButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            Intent intent = new Intent(MainActivity.this, GameActivity.class) ;
-                            intent.putExtras(readybundle);
-                            startActivity(intent);
+                            mSocket.emit("ready",gson.toJson(new MessageData(id,roomNameEnter)));
+                            mSocket.on("accept", accpet);
                         }
                     });
 
@@ -134,6 +130,37 @@ public class MainActivity extends AppCompatActivity {
             });
         }
     };
+
+    public Emitter.Listener accpet = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //set bundle
+                    MessageData data = gson.fromJson(args[0].toString(), MessageData.class);
+                    ArrayList<String> enemyList = new ArrayList<String> ();
+                    String localusername = data.username;
+                    Bundle readybundle = new Bundle();
+                    readybundle.putString("id",localusername);
+                    for (int i=0; i< pnames.length; i++) {
+                        if (pnames[i].equals(id)){
+                            continue;
+                        }
+                        else {
+                            enemyList.add(pnames[i]);
+                        }
+                    }
+                    readybundle.putStringArrayList("opponents",enemyList);
+                    Intent intent = new Intent(MainActivity.this, GameActivity.class) ;
+                    intent.putExtras(readybundle);
+                    startActivity(intent);
+                }
+            });
+        }
+    };
+
 
     @Override
     public void onBackPressed() {

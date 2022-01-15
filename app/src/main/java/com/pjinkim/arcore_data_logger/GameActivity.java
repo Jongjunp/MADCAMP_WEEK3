@@ -7,6 +7,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,21 +16,42 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions;
 
+import org.w3c.dom.Text;
+
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 
 public class GameActivity extends AppCompatActivity {
 
     TextView tv;
     ImageButton shoot;
+    TextView _username;
+    TextView _kill;
+    TextView _death;
+
+    String username;
+    ArrayList<String> opponentlist;
+    Integer killnum;
+    Integer deathnum;
+
+    static Socket mSocket;
+    Gson gson = new Gson();
 
     // Accurate pose detector on static images, when depending on the pose-detection-accurate sdk
     AccuratePoseDetectorOptions options = new AccuratePoseDetectorOptions.Builder().setDetectorMode(AccuratePoseDetectorOptions.SINGLE_IMAGE_MODE).build();
@@ -47,7 +69,6 @@ public class GameActivity extends AppCompatActivity {
     };
 
     private ARCoreSession mARCoreSession;
-
     private Handler mHandler = new Handler();
     private AtomicBoolean mIsRecording = new AtomicBoolean(false);
     private PowerManager.WakeLock mWakeLock;
@@ -72,12 +93,36 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        //socket communication
+        if (mSocket!=null) mSocket.disconnect();
+        try {
+            mSocket = IO.socket("http://192.249.18.147:80");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        mSocket.connect();
+
+        _username = (TextView) findViewById(R.id.username);
+        _kill = (TextView) findViewById(R.id.kill);
+        _death = (TextView) findViewById(R.id.death);
+
+        //intent open
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        username = bundle.getString("id");
+        opponentlist = bundle.getStringArrayList("opponents");
+        _username.setText(username);
+
+
         tv=findViewById(R.id.tv);
         shoot = findViewById(R.id.shoot);
         shoot.setOnClickListener(new View.OnClickListener() { // 이미지 버튼 이벤트 정의
             @Override
             public void onClick(View v) { //클릭 했을경우
-                shotTrigger();
+                boolean hitResult = shotTrigger();
+                mSocket.emit("hitOrNot",gson.toJson(new GameData(username, )));
+                mSocket.on("hit",hit);
+                mSocket.on("nothit",nothit);
             }
         });
 
@@ -144,17 +189,17 @@ public class GameActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
         // nullify back button when recording starts
         if (!mIsRecording.get()) {
             super.onBackPressed();
         }
     }
 
-    public void shotTrigger()
+    public boolean shotTrigger()
     {
         Log.d("발사","타격 판정");
-        mARCoreSession.hitCheck();
+        boolean hit = mARCoreSession.hitCheck();
+        return hit;
     }
 
     private static boolean hasPermissions(Context context, String... permissions) {
@@ -167,4 +212,31 @@ public class GameActivity extends AppCompatActivity {
         }
         return true;
     }
+
+    public Emitter.Listener hit = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                }
+            });
+        }
+    };
+
+    public Emitter.Listener nothit = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                }
+            });
+        }
+    };
+
 }

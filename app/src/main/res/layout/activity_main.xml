@@ -63,6 +63,15 @@
                     android:textColor="@color/darkgrey"
                     android:textSize="22sp" />
 
+                <TextView
+                    android:id="@+id/wait_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_gravity="center"
+                    android:textSize="15sp"
+                    android:text="Wait for the other players..." />
+
                 <Button
                     android:id="@+id/btn_ready"
                     android:layout_width="match_parent"

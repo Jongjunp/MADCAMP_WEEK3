@@ -119,7 +119,17 @@ public class ARCoreSession {
         pointCloud.release();
     }
 
-    void hitCheck() {
+    boolean hitCheck() {
+
+        double centerX, centerY;
+        double marginX, marginY;
+        final PointF[] copyHeadPos = new PointF[1];
+        //should be initialized later!!!!
+        centerX = 0.5;
+        centerY = 0.5;
+        marginX = 0.01;
+        marginY = 0.01;
+
         //이미지 추출
         Image view = null;
         try {
@@ -139,6 +149,7 @@ public class ARCoreSession {
                 if(pose.getAllPoseLandmarks().size()>0) {
                     PointF headPos = pose.getPoseLandmark(0).getPosition();
                     Log.d("머리 위치",headPos.x/image.getWidth()+", "+headPos.y/image.getHeight());
+                    copyHeadPos[0] = headPos;
                 }
             }
         });
@@ -149,6 +160,13 @@ public class ARCoreSession {
                 finalView.close();
             }
         });
+        if (((centerX - copyHeadPos[0].x/image.getWidth()) < marginX) && ((centerY - copyHeadPos[0].y/image.getHeight()) < marginY)) {
+            return true;
+        }
+        else{
+            return false;
+        }
+
     }
     private Bitmap imageToBitmap (Image image) {
         int width = image.getWidth();
