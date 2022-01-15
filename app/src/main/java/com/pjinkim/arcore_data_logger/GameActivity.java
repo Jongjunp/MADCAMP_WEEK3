@@ -8,32 +8,25 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.ar.core.TrackingFailureReason;
-import com.google.ar.core.TrackingState;
 import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions;
 
-import java.io.IOException;
-import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class MainActivity extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity {
 
     TextView tv;
     ImageButton shoot;
@@ -42,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     AccuratePoseDetectorOptions options = new AccuratePoseDetectorOptions.Builder().setDetectorMode(AccuratePoseDetectorOptions.SINGLE_IMAGE_MODE).build();
     PoseDetector poseDetector = PoseDetection.getClient(options);
     // properties
-    private static final String LOG_TAG = MainActivity.class.getName();
+    private static final String LOG_TAG = GameActivity.class.getName();
     private static final double MIN_OPENGL_VERSION = 3.0;
 
     private final static int REQUEST_CODE_ANDROID = 1001;

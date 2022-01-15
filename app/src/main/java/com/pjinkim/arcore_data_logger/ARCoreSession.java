@@ -2,7 +2,6 @@ package com.pjinkim.arcore_data_logger;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.PointF;
@@ -23,13 +22,11 @@ import com.google.ar.core.Pose;
 import com.google.ar.core.TrackingFailureReason;
 import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.NotYetAvailableException;
-import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.ux.ArFragment;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
-import com.google.mlkit.vision.pose.PoseLandmark;
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions;
 
 import java.io.ByteArrayOutputStream;
@@ -47,7 +44,7 @@ public class ARCoreSession {
     private static final long mulSecondToNanoSecond = 1000000000;
     private long previousTimestamp = 0;
 
-    private MainActivity mContext;
+    private GameActivity mContext;
     private ArFragment mArFragment;
     private PointCloudNode mPointCloudNode;
     private AccumulatedPointCloud mAccumulatedPointCloud;
@@ -67,7 +64,7 @@ public class ARCoreSession {
     PoseDetector poseDetector;
 
     // constructor
-    public ARCoreSession(@NonNull MainActivity context) {
+    public ARCoreSession(@NonNull GameActivity context) {
 
         mContext = context;
         mArFragment = (ArFragment) mContext.getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
