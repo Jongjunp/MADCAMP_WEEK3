@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,11 +16,16 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.ar.core.TrackingFailureReason;
 import com.google.ar.core.TrackingState;
+import com.google.mlkit.vision.pose.PoseDetection;
+import com.google.mlkit.vision.pose.PoseDetector;
+import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -29,6 +35,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainActivity extends AppCompatActivity {
 
+    TextView tv;
+    ImageButton shoot;
+
+    // Accurate pose detector on static images, when depending on the pose-detection-accurate sdk
+    AccuratePoseDetectorOptions options = new AccuratePoseDetectorOptions.Builder().setDetectorMode(AccuratePoseDetectorOptions.SINGLE_IMAGE_MODE).build();
+    PoseDetector poseDetector = PoseDetection.getClient(options);
     // properties
     private static final String LOG_TAG = MainActivity.class.getName();
     private static final double MIN_OPENGL_VERSION = 3.0;
@@ -38,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.CAMERA,
             Manifest.permission.WAKE_LOCK,
             Manifest.permission.READ_PHONE_STATE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.ACCESS_FINE_LOCATION
     };
 
     private ARCoreSession mARCoreSession;
@@ -47,14 +59,19 @@ public class MainActivity extends AppCompatActivity {
     private AtomicBoolean mIsRecording = new AtomicBoolean(false);
     private PowerManager.WakeLock mWakeLock;
 
-    private TextView mLabelNumberFeatures, mLabelUpdateRate;
-    private TextView mLabelTrackingStatus, mLabelTrackingFailureReason;
-
-    private Button mStartStopButton;
-    private TextView mLabelInterfaceTime;
     private Timer mInterfaceTimer = new Timer();
     private int mSecondCounter = 0;
 
+
+    Timer timer = new Timer();
+    TimerTask locUpdater = new TimerTask() {
+        @Override
+        public void run() {
+            // 위치 정보 보내기
+            Log.d("상대 위치",UserInfo.instance.printLoc());
+            tv.setText(UserInfo.instance.printLoc());
+        }
+    };
 
     // Android activity lifecycle states
     @Override
@@ -62,29 +79,29 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        tv=findViewById(R.id.tv);
+        shoot = findViewById(R.id.shoot);
+        shoot.setOnClickListener(new View.OnClickListener() { // 이미지 버튼 이벤트 정의
+            @Override
+            public void onClick(View v) { //클릭 했을경우
+                shotTrigger();
+            }
+        });
+
         // check Android and OpenGL version
         if (!checkIsSupportedDeviceOrFinish(this)) {
             return;
         }
 
-
-        // initialize screen labels and buttons
-        initializeViews();
-
-
         // setup sessions
         mARCoreSession = new ARCoreSession(this);
-
 
         // battery power setting
         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "sensors_data_logger:wakelocktag");
         mWakeLock.acquire();
 
-
-        // monitor ARCore information
-        displayARCoreInformation();
-        mLabelInterfaceTime.setText(R.string.ready_title);
+        timer.schedule(locUpdater, 0, 500);
     }
 
 
@@ -99,115 +116,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        if (mIsRecording.get()) {
-            stopRecording();
-        }
+        if (mIsRecording.get()) { }
         if (mWakeLock.isHeld()) {
             mWakeLock.release();
         }
         super.onDestroy();
     }
-
-
-    // methods
-    public void startStopRecording(View view) {
-        if (!mIsRecording.get()) {
-
-            // start recording sensor measurements when button is pressed
-            startRecording();
-
-            // start interface timer on display
-            mSecondCounter = 0;
-            mInterfaceTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    mSecondCounter += 1;
-                    mLabelInterfaceTime.setText(interfaceIntTime(mSecondCounter));
-                }
-            }, 0, 1000);
-
-        } else {
-
-            // stop recording sensor measurements when button is pressed
-            stopRecording();
-
-            // stop interface timer on display
-            mInterfaceTimer.cancel();
-            mLabelInterfaceTime.setText(R.string.ready_title);
-        }
-    }
-
-
-    private void startRecording() {
-
-        // output directory for text files
-        String outputFolder = null;
-        try {
-            OutputDirectoryManager folder = new OutputDirectoryManager("", "R_pjinkim_ARCore");
-            outputFolder = folder.getOutputDirectory();
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "startRecording: Cannot create output folder.");
-            e.printStackTrace();
-        }
-
-        // start ARCore session
-        mARCoreSession.startSession(outputFolder);
-        mIsRecording.set(true);
-
-        // update Start/Stop button UI
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mStartStopButton.setEnabled(true);
-                mStartStopButton.setText(R.string.stop_title);
-            }
-        });
-        showToast("Recording starts!");
-    }
-
-
-    protected void stopRecording() {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-
-                // stop ARCore session
-                mARCoreSession.stopSession();
-                mIsRecording.set(false);
-
-                // update screen UI and button
-                showToast("Recording stops!");
-                resetUI();
-            }
-        });
-    }
-
-
-    public void showToast(final String text) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(MainActivity.this, text, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-
-    private void resetUI() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mLabelNumberFeatures.setText("N/A");
-                mLabelTrackingStatus.setText("N/A");
-                mLabelTrackingFailureReason.setText("N/A");
-                mLabelUpdateRate.setText("N/A");
-
-                mStartStopButton.setEnabled(true);
-                mStartStopButton.setText(R.string.start_title);
-            }
-        });
-    }
-
 
     public static boolean checkIsSupportedDeviceOrFinish(final Activity activity) {
 
@@ -244,6 +158,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void shotTrigger()
+    {
+        Log.d("발사","타격 판정");
+        mARCoreSession.hitCheck();
+    }
 
     private static boolean hasPermissions(Context context, String... permissions) {
 
@@ -254,97 +173,5 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return true;
-    }
-
-
-    private String interfaceIntTime(final int second) {
-
-        // check second input
-        if (second < 0) {
-            Log.e(LOG_TAG, "interfaceIntTime: Second cannot be negative.");
-            return null;
-        }
-
-        // extract hour, minute, second information from second
-        int input = second;
-        int hours = input / 3600;
-        input = input % 3600;
-        int mins = input / 60;
-        int secs = input % 60;
-
-        // return interface int time
-        return String.format(Locale.US, "%02d:%02d:%02d", hours, mins, secs);
-    }
-
-
-    private void initializeViews() {
-
-        mLabelNumberFeatures = (TextView) findViewById(R.id.label_number_features);
-        mLabelTrackingStatus = (TextView) findViewById(R.id.label_tracking_status);
-        mLabelTrackingFailureReason = (TextView) findViewById(R.id.label_tracking_failure_reason);
-        mLabelUpdateRate = (TextView) findViewById(R.id.label_update_rate);
-
-        mStartStopButton = (Button) findViewById(R.id.button_start_stop);
-        mLabelInterfaceTime = (TextView) findViewById(R.id.label_interface_time);
-    }
-
-
-    private void displayARCoreInformation() {
-
-        // get ARCore tracking information
-        int numberOfFeatures = mARCoreSession.getNumberOfFeatures();
-        TrackingState trackingState = mARCoreSession.getTrackingState();
-        TrackingFailureReason trackingFailureReason =  mARCoreSession.getTrackingFailureReason();
-        double updateRate = mARCoreSession.getUpdateRate();
-
-        // update current screen (activity)
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-
-                // determine TrackingState text
-                String ARCoreTrackingState = "";
-                if (trackingState == TrackingState.PAUSED) {
-                    ARCoreTrackingState = "PAUSED";
-                } else if (trackingState == TrackingState.STOPPED) {
-                    ARCoreTrackingState = "STOPPED";
-                } else if (trackingState == TrackingState.TRACKING) {
-                    ARCoreTrackingState = "TRACKING";
-                } else {
-                    ARCoreTrackingState = "ERROR?";
-                }
-
-                // determine TrackingFailureReason text
-                String ARCoreTrackingFailureReason = "";
-                if (trackingFailureReason == TrackingFailureReason.BAD_STATE) {
-                    ARCoreTrackingFailureReason = "BAD STATE";
-                } else if (trackingFailureReason == TrackingFailureReason.EXCESSIVE_MOTION) {
-                    ARCoreTrackingFailureReason = "FAST MOTION";
-                } else if (trackingFailureReason == TrackingFailureReason.INSUFFICIENT_FEATURES) {
-                    ARCoreTrackingFailureReason = "LOW FEATURES";
-                } else if (trackingFailureReason == TrackingFailureReason.INSUFFICIENT_LIGHT) {
-                    ARCoreTrackingFailureReason = "LOW LIGHT";
-                } else if (trackingFailureReason == TrackingFailureReason.NONE) {
-                    ARCoreTrackingFailureReason = "NONE";
-                } else {
-                    ARCoreTrackingFailureReason = "ERROR?";
-                }
-
-                // update interface screen labels
-                mLabelNumberFeatures.setText(String.format(Locale.US, "%05d", numberOfFeatures));
-                mLabelTrackingStatus.setText(ARCoreTrackingState);
-                mLabelTrackingFailureReason.setText(ARCoreTrackingFailureReason);
-                mLabelUpdateRate.setText(String.format(Locale.US, "%.3f Hz", updateRate));
-            }
-        });
-
-        // determine display update rate (100 ms)
-        final long displayInterval = 100;
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                displayARCoreInformation();
-            }
-        }, displayInterval);
     }
 }
