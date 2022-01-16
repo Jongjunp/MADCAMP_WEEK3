@@ -2,8 +2,8 @@ package com.pjinkim.arcore_data_logger;
 
 public class UserInfo {
     public  static UserInfo instance = new UserInfo();
-    float x,y,z;
-    int q_x,q_y,q_z,q_w;
+    public float x,y,z;
+    public float q_x,q_y,q_z,q_w;
 
     public void setAbsoluteLoc(float a, float b, float c)
     {
@@ -18,11 +18,12 @@ public class UserInfo {
 
         return;
     }
-    public void setrelateRot(int a, int b, int c, int d)
+    public void setrelateRot(float a, float b, float c, float d)
     {
-        x=a;
-        y=b;
-        z=c;
+        q_x = a;
+        q_y = b;
+        q_z = c;
+        q_w = d;
 
         return;
     }

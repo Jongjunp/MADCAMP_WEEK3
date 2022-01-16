@@ -9,6 +9,8 @@ import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.media.Image;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -30,7 +32,13 @@ import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions;
 
+import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -39,11 +47,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 import uk.co.appoly.arcorelocation.LocationScene;
 
 public class ARCoreSession {
 
     // properties
+    int count = 0;
     private static final String LOG_TAG = ARCoreSession.class.getName();
     private static final long mulSecondToNanoSecond = 1000000000;
     private long previousTimestamp = 0;
@@ -125,6 +135,16 @@ public class ARCoreSession {
         float tz = T_gc.tz();
 
         UserInfo.instance.setrelateLoc(tx, ty, tz);
+        UserInfo.instance.setrelateRot(qx, qy, qz, qw);
+
+        if(++count==100){
+            count=0;
+            MessageData msg = new MessageData("","","");
+            msg.x=tx;
+            msg.y=ty;
+            msg.z=tz;
+            mSocket.emit("position",gson.toJson(msg));
+        }
 
         // update 3D point cloud from ARCore
         PointCloud pointCloud = frame.acquirePointCloud();
@@ -165,7 +185,15 @@ public class ARCoreSession {
                     PointF headPos = pose.getPoseLandmark(0).getPosition();
                     Log.d("머리 위치",headPos.x/image.getWidth()+", "+headPos.y/image.getHeight());
                     if (((centerX - headPos.x/image.getWidth()) < marginX) && ((centerY - headPos.y/image.getHeight()) < marginY)) {
-                        mSocket.emit("hit",gson.toJson(new MessageData(UserInfo)));
+                        MessageData msg = new MessageData("","","");
+                        Rotation rot=new Rotation(UserInfo.instance.q_x, UserInfo.instance.q_y, UserInfo.instance.q_z, UserInfo.instance.q_w, true);
+                        Vector3D ret = rot.applyTo(new Vector3D(1,0,0));
+                        double x=ret.getX(),y=ret.getY(),z=ret.getZ();
+                        double theta = Math.PI/2.0- Math.atan(z/(Math.sqrt(x*x+y*y)));
+                        double phi = Math.atan2(y,x);
+                        msg.theta=theta;
+                        msg.phi=phi;
+                        mSocket.emit("shoot",gson.toJson(msg));
                     }
                 }
             }
@@ -177,8 +205,6 @@ public class ARCoreSession {
                 finalView.close();
             }
         });
-
-
     }
     private Bitmap imageToBitmap (Image image) {
         int width = image.getWidth();

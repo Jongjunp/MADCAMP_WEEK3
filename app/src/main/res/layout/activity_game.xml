@@ -54,16 +54,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/username"/>
 
-    <TextView
-        android:id="@+id/death"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:layout_margin="15dp"
-        android:text="Death:"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/kill"/>
-
     <ImageView
         android:id="@+id/aim"
         android:layout_width="100dp"

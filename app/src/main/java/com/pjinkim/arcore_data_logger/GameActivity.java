@@ -43,12 +43,10 @@ public class GameActivity extends AppCompatActivity {
     ImageButton shoot;
     TextView _username;
     TextView _kill;
-    TextView _death;
 
     public static String username;
     ArrayList<String> opponentlist;
     Integer killnum;
-    Integer deathnum;
 
     static Socket mSocket;
     Gson gson = new Gson();
@@ -106,7 +104,6 @@ public class GameActivity extends AppCompatActivity {
 
         _username = (TextView) findViewById(R.id.username);
         _kill = (TextView) findViewById(R.id.kill);
-        _death = (TextView) findViewById(R.id.death);
 
         //intent open
         Intent intent = getIntent();
@@ -230,8 +227,12 @@ public class GameActivity extends AppCompatActivity {
                         intent.putExtras(bundle);
                         startActivity(intent);
                     }
-                    else {
+                    else if(data.username.equals(username)){
                         killnum++;
+                    }
+                    else {
+                        String msg = username +"님이 " + data.victim +"님을 사살했습니다";
+                        Toast.makeText(GameActivity.this , msg , Toast.LENGTH_SHORT).show();
                     }
 
                     _kill.setText("Kill: "+killnum);
