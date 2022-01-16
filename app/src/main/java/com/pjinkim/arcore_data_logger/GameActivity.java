@@ -46,7 +46,7 @@ public class GameActivity extends AppCompatActivity {
 
     public static String username;
     ArrayList<String> opponentlist;
-    Integer killnum;
+    int killnum;
 
     Gson gson = new Gson();
 
@@ -91,6 +91,7 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game);
 
         MainActivity.mSocket.on("result", result);
+        MainActivity.mSocket.on("gameover", gameover);
 
         _username = (TextView) findViewById(R.id.username);
         _kill = (TextView) findViewById(R.id.kill);
@@ -206,11 +207,14 @@ public class GameActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     MessageData data = gson.fromJson(args[0].toString(), MessageData.class);
+                    Log.d(data.username,data.victim);
                     if (data.victim.equals(username)) {
-                        MainActivity.mSocket.disconnect();
                         //bundle 설정 필요
+                        Log.d("username", username);
+                        Log.d("killnum", String.valueOf(killnum));
                         Bundle bundle = new Bundle();
                         bundle.putString("username", username);
+                        bundle.putString("killer", data.username);
                         bundle.putInt("killnum", killnum);
                         bundle.putBoolean("win", false);
                         Intent intent = new Intent(GameActivity.this, ResultActivity.class);
@@ -226,6 +230,28 @@ public class GameActivity extends AppCompatActivity {
                     }
 
                     _kill.setText("Kill: "+killnum);
+                }
+            });
+        }
+    };
+    public Emitter.Listener gameover = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    MessageData data = gson.fromJson(args[0].toString(), MessageData.class);
+
+                    Bundle bundle = new Bundle();
+                    bundle.putString("username", username);
+                    bundle.putInt("killnum", killnum);
+                    bundle.putString("killer", "-");
+                    bundle.putBoolean("win", true);
+
+                    Intent intent = new Intent(GameActivity.this, ResultActivity.class);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
                 }
             });
         }

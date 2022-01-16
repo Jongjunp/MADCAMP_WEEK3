@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
                     //set bundle
                     MessageData data = gson.fromJson(args[0].toString(), MessageData.class);
                     ArrayList<String> enemyList = new ArrayList<String> ();
-                    String localusername = data.username;
+                    String localusername = id;
                     Bundle readybundle = new Bundle();
                     readybundle.putString("id",localusername);
                     for (int i=0; i< pnames.length; i++) {

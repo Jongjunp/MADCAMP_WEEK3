@@ -176,7 +176,7 @@ public class ARCoreSession {
                     if (((centerX - headPos.x/image.getWidth()) < marginX) && ((centerY - headPos.y/image.getHeight()) < marginY)) {
                         MessageData msg = new MessageData("","","");
                         Rotation rot=new Rotation(UserInfo.instance.q_x, UserInfo.instance.q_y, UserInfo.instance.q_z, UserInfo.instance.q_w, true);
-                        Vector3D ret = rot.applyTo(new Vector3D(1,0,0));
+                        Vector3D ret = rot.applyTo(new Vector3D(0,0,-1));
                         double x=ret.getX(),y=ret.getY(),z=ret.getZ();
                         double theta = Math.PI/2.0- Math.atan(z/(Math.sqrt(x*x+y*y)));
                         double phi = Math.atan2(y,x);

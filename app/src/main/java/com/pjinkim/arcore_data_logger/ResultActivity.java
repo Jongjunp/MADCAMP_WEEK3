@@ -11,11 +11,13 @@ import android.widget.TextView;
 public class ResultActivity extends AppCompatActivity {
 
     String username;
-    Integer killnum;
+    String killername;
+    int killnum;
     boolean win;
 
     TextView _killNum;
     TextView _userName;
+    TextView _killerName;
     TextView _winLoseMessage;
     Button _returnToMain;
 
@@ -27,19 +29,24 @@ public class ResultActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
+
+        MainActivity.mSocket.disconnect();
         //unwrap intent & bundle
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
         username = bundle.getString("username");
         killnum = bundle.getInt("killnum");
+        killername = bundle.getString("killer");
         win = bundle.getBoolean("win");
 
+        _killerName = (TextView) findViewById(R.id.killername);
         _killNum = (TextView) findViewById(R.id.killnum);
         _userName = (TextView) findViewById(R.id.username);
         _winLoseMessage = (TextView) findViewById(R.id.winlosemsg);
         _returnToMain = (Button) findViewById(R.id.btn_return);
 
-        _killNum.setText(killnum);
+        _killerName.setText("날 죽인사람은 \"" + killername+"\"");
+        _killNum.setText("Kill: "+killnum);
         _userName.setText(username);
         if (win) {
             _winLoseMessage.setText(WIN);
@@ -51,7 +58,10 @@ public class ResultActivity extends AppCompatActivity {
         _returnToMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putString("id", username);
                 Intent intent = new Intent(ResultActivity.this, MainActivity.class);
+                intent.putExtras(bundle);
                 startActivity(intent);
             }
         });
