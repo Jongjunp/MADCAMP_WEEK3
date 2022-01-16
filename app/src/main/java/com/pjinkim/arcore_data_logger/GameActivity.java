@@ -48,7 +48,6 @@ public class GameActivity extends AppCompatActivity {
     ArrayList<String> opponentlist;
     Integer killnum;
 
-    static Socket mSocket;
     Gson gson = new Gson();
 
     // Accurate pose detector on static images, when depending on the pose-detection-accurate sdk
@@ -91,16 +90,7 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        //socket communication
-        if (mSocket!=null) mSocket.disconnect();
-        try {
-            mSocket = IO.socket("http://192.249.18.147:80");
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        mSocket.connect();
-
-        mSocket.on("result", result);
+        MainActivity.mSocket.on("result", result);
 
         _username = (TextView) findViewById(R.id.username);
         _kill = (TextView) findViewById(R.id.kill);
@@ -217,7 +207,7 @@ public class GameActivity extends AppCompatActivity {
                 public void run() {
                     MessageData data = gson.fromJson(args[0].toString(), MessageData.class);
                     if (data.victim.equals(username)) {
-                        mSocket.disconnect();
+                        MainActivity.mSocket.disconnect();
                         //bundle 설정 필요
                         Bundle bundle = new Bundle();
                         bundle.putString("username", username);

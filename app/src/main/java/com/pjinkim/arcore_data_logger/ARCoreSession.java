@@ -77,21 +77,10 @@ public class ARCoreSession {
     AccuratePoseDetectorOptions options;
     PoseDetector poseDetector;
 
-    static Socket mSocket;
     Gson gson = new Gson();
 
     // constructor
     public ARCoreSession(@NonNull GameActivity context) {
-
-        //socket communication
-        if (mSocket!=null) mSocket.disconnect();
-        try {
-            mSocket = IO.socket("http://192.249.18.147:80");
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        mSocket.connect();
-
         mContext = context;
         mArFragment = (ArFragment) mContext.getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
         mArFragment.getArSceneView().getPlaneRenderer().setVisible(false);
@@ -143,7 +132,7 @@ public class ARCoreSession {
             msg.x=tx;
             msg.y=ty;
             msg.z=tz;
-            mSocket.emit("position",gson.toJson(msg));
+            MainActivity.mSocket.emit("position",gson.toJson(msg));
         }
 
         // update 3D point cloud from ARCore
@@ -193,7 +182,7 @@ public class ARCoreSession {
                         double phi = Math.atan2(y,x);
                         msg.theta=theta;
                         msg.phi=phi;
-                        mSocket.emit("shoot",gson.toJson(msg));
+                        MainActivity.mSocket.emit("shoot",gson.toJson(msg));
                     }
                 }
             }
