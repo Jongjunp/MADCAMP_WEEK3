@@ -102,6 +102,8 @@ public class GameActivity extends AppCompatActivity {
         }
         mSocket.connect();
 
+        mSocket.on("result", result);
+
         _username = (TextView) findViewById(R.id.username);
         _kill = (TextView) findViewById(R.id.kill);
         _death = (TextView) findViewById(R.id.death);
@@ -119,10 +121,7 @@ public class GameActivity extends AppCompatActivity {
         shoot.setOnClickListener(new View.OnClickListener() { // 이미지 버튼 이벤트 정의
             @Override
             public void onClick(View v) { //클릭 했을경우
-                boolean hitResult = shotTrigger();
-                mSocket.emit("hitOrNot",gson.toJson(new GameData(username, )));
-                mSocket.on("hit",hit);
-                mSocket.on("nothit",nothit);
+                shotTrigger();
             }
         });
 
@@ -195,11 +194,10 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    public boolean shotTrigger()
+    public void shotTrigger()
     {
         Log.d("발사","타격 판정");
-        boolean hit = mARCoreSession.hitCheck();
-        return hit;
+        mARCoreSession.hitCheck();
     }
 
     private static boolean hasPermissions(Context context, String... permissions) {
@@ -213,30 +211,33 @@ public class GameActivity extends AppCompatActivity {
         return true;
     }
 
-    public Emitter.Listener hit = new Emitter.Listener() {
+    public Emitter.Listener result = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
 
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    // if victim == me
+                    // death and disconnect socket, move to result activity
+                    //else
+                    //killnum increase
+                    MessageData data = gson.fromJson(args[0].toString(), MessageData.class);
+                    if (data.victim.equals(username)) {
+                        mSocket.disconnect();
+                        //bundle 설정 필요
+                        Intent intent = new Intent(GameActivity.this, RankingActivity.class);
+                        startActivity(intent);
+                    }
+                    else {
+                        killnum++;
+                    }
 
+                    _kill.setText("Kill: "+killnum);
                 }
             });
         }
     };
 
-    public Emitter.Listener nothit = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-
-                }
-            });
-        }
-    };
 
 }

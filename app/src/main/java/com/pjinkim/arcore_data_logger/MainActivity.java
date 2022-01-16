@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     TextView _userName;
     EditText _roomNameEnter;
     Button _enterRoom;
+    Button _ranking;
     LinearLayout _enter;
     LinearLayout _search;
     LinearLayout _ready;
@@ -48,6 +49,15 @@ public class MainActivity extends AppCompatActivity {
         Bundle bundle = intent.getExtras();
         id = bundle.getString("id");
 
+        //socket communication
+        if (mSocket!=null) mSocket.disconnect();
+        try {
+            mSocket = IO.socket("http://192.249.18.147:80");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        mSocket.connect();
+
         //layouts
         _enter = (LinearLayout) findViewById(R.id.enter);
         _search = (LinearLayout) findViewById(R.id.search);
@@ -59,25 +69,27 @@ public class MainActivity extends AppCompatActivity {
         _roomNameEnter = (EditText) findViewById(R.id.room_name_enter);
         _enterRoom = (Button) findViewById(R.id.btn_enter);
         _readyButton = (Button) findViewById(R.id.btn_ready);
+        _ranking = (Button) findViewById(R.id.btn_ranking);
         //Enter the existing room
         _enterRoom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                //socket communication
-                if (mSocket!=null) mSocket.disconnect();
-                try {
-                    mSocket = IO.socket("http://192.249.18.147:80");
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                }
-                mSocket.connect();
                 roomNameEnter = _roomNameEnter.getText().toString().trim();
-                mSocket.emit("enter",gson.toJson(new MessageData(id, roomNameEnter)));
+                mSocket.emit("enter",gson.toJson(new MessageData(id, roomNameEnter, "")));
                 _enter.setVisibility(View.INVISIBLE);
                 _search.setVisibility(View.VISIBLE);
                 mSocket.on("refuse", refuse);
                 mSocket.on("roomfound",whenroomfound);
+            }
+        });
+        //Move to ranking activity
+        _ranking.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //ranking data 불러오기
+                mSocket.emit("ranking", );
+
             }
         });
     }
@@ -101,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                     _readyButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            mSocket.emit("ready",gson.toJson(new MessageData(id,roomNameEnter)));
+                            mSocket.emit("ready",gson.toJson(new MessageData(id,roomNameEnter,"")));
                             mSocket.on("accept", accpet);
                         }
                     });

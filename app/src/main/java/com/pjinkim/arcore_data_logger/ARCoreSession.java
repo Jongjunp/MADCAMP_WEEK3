@@ -24,17 +24,21 @@ import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.NotYetAvailableException;
 import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.ux.ArFragment;
+import com.google.gson.Gson;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.pose.PoseDetection;
 import com.google.mlkit.vision.pose.PoseDetector;
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions;
 
 import java.io.ByteArrayOutputStream;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import io.socket.client.IO;
+import io.socket.client.Socket;
 import uk.co.appoly.arcorelocation.LocationScene;
 
 public class ARCoreSession {
@@ -63,8 +67,20 @@ public class ARCoreSession {
     AccuratePoseDetectorOptions options;
     PoseDetector poseDetector;
 
+    static Socket mSocket;
+    Gson gson = new Gson();
+
     // constructor
     public ARCoreSession(@NonNull GameActivity context) {
+
+        //socket communication
+        if (mSocket!=null) mSocket.disconnect();
+        try {
+            mSocket = IO.socket("http://192.249.18.147:80");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        mSocket.connect();
 
         mContext = context;
         mArFragment = (ArFragment) mContext.getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
@@ -119,11 +135,10 @@ public class ARCoreSession {
         pointCloud.release();
     }
 
-    boolean hitCheck() {
+    void hitCheck() {
 
         double centerX, centerY;
         double marginX, marginY;
-        final PointF[] copyHeadPos = new PointF[1];
         //should be initialized later!!!!
         centerX = 0.5;
         centerY = 0.5;
@@ -149,7 +164,9 @@ public class ARCoreSession {
                 if(pose.getAllPoseLandmarks().size()>0) {
                     PointF headPos = pose.getPoseLandmark(0).getPosition();
                     Log.d("머리 위치",headPos.x/image.getWidth()+", "+headPos.y/image.getHeight());
-                    copyHeadPos[0] = headPos;
+                    if (((centerX - headPos.x/image.getWidth()) < marginX) && ((centerY - headPos.y/image.getHeight()) < marginY)) {
+                        mSocket.emit("hit",gson.toJson(new MessageData(UserInfo)));
+                    }
                 }
             }
         });
@@ -160,12 +177,7 @@ public class ARCoreSession {
                 finalView.close();
             }
         });
-        if (((centerX - copyHeadPos[0].x/image.getWidth()) < marginX) && ((centerY - copyHeadPos[0].y/image.getHeight()) < marginY)) {
-            return true;
-        }
-        else{
-            return false;
-        }
+
 
     }
     private Bitmap imageToBitmap (Image image) {
