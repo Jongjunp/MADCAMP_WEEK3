@@ -45,7 +45,7 @@ public class GameActivity extends AppCompatActivity {
     TextView _kill;
     TextView _death;
 
-    String username;
+    public static String username;
     ArrayList<String> opponentlist;
     Integer killnum;
     Integer deathnum;
@@ -218,15 +218,16 @@ public class GameActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    // if victim == me
-                    // death and disconnect socket, move to result activity
-                    //else
-                    //killnum increase
                     MessageData data = gson.fromJson(args[0].toString(), MessageData.class);
                     if (data.victim.equals(username)) {
                         mSocket.disconnect();
                         //bundle 설정 필요
-                        Intent intent = new Intent(GameActivity.this, RankingActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("username", username);
+                        bundle.putInt("killnum", killnum);
+                        bundle.putBoolean("win", false);
+                        Intent intent = new Intent(GameActivity.this, ResultActivity.class);
+                        intent.putExtras(bundle);
                         startActivity(intent);
                     }
                     else {

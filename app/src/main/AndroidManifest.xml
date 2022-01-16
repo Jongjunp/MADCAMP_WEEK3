@@ -24,9 +24,6 @@
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".RankingActivity"
-            android:exported="false" />
-        <activity
             android:name=".ResultActivity"
             android:exported="false" />
 

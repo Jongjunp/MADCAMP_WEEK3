@@ -27,7 +27,6 @@ public class MainActivity extends AppCompatActivity {
     TextView _userName;
     EditText _roomNameEnter;
     Button _enterRoom;
-    Button _ranking;
     LinearLayout _enter;
     LinearLayout _search;
     LinearLayout _ready;
@@ -69,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
         _roomNameEnter = (EditText) findViewById(R.id.room_name_enter);
         _enterRoom = (Button) findViewById(R.id.btn_enter);
         _readyButton = (Button) findViewById(R.id.btn_ready);
-        _ranking = (Button) findViewById(R.id.btn_ranking);
         //Enter the existing room
         _enterRoom.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,15 +79,6 @@ public class MainActivity extends AppCompatActivity {
                 _search.setVisibility(View.VISIBLE);
                 mSocket.on("refuse", refuse);
                 mSocket.on("roomfound",whenroomfound);
-            }
-        });
-        //Move to ranking activity
-        _ranking.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //ranking data 불러오기
-                mSocket.emit("ranking", );
-
             }
         });
     }
