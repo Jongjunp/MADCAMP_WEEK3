@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.gson.Gson;
 
 import java.net.URISyntaxException;
@@ -94,6 +95,9 @@ public class MainActivity extends AppCompatActivity {
                     _search.setVisibility(View.INVISIBLE);
                     _ready.setVisibility(View.VISIBLE);
 
+                    //animation play
+                    LottieAnimationView anim = (LottieAnimationView) findViewById(R.id.img_ready);
+                    anim.playAnimation();
 
                     //when ready button pressed
                     _readyButton.setOnClickListener(new View.OnClickListener() {
