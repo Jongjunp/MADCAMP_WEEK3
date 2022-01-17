@@ -38,7 +38,7 @@
                 android:gravity="center|start"
                 android:maxLines="2"
                 android:layout_weight="1"
-                android:fontFamily="@font/tekoRegular"
+                android:fontFamily="@font/tekoregular"
                 android:text="UserName"
                 android:textColor="#3c4b5d"
                 android:textSize="20sp"
@@ -49,7 +49,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:fontFamily="@font/tekoRegular"
+                android:fontFamily="@font/tekoregular"
                 android:text="Kill: "
                 android:gravity="center"
                 android:layout_gravity="center_horizontal"
@@ -80,7 +80,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="TextView"
-                    android:fontFamily="@font/tekoRegular"
+                    android:fontFamily="@font/tekoregular"
                     android:gravity="center"
                     android:layout_marginTop="15dp"
                     android:textSize="18sp"
@@ -93,7 +93,7 @@
                     android:gravity="center"
                     android:layout_marginTop="15dp"
                     android:text="Win/Lose Message"
-                    android:fontFamily="@font/tekoRegular"
+                    android:fontFamily="@font/tekoregular"
                     android:textColor="#3c4b5d"
                     android:textSize="22sp" />
 
@@ -111,7 +111,7 @@
                 android:padding="16dp"
                 android:layout_gravity="bottom"
                 android:text="Return to Main"
-                android:fontFamily="@font/tekoRegular"
+                android:fontFamily="@font/tekoregular"
                 android:textColor="@color/white"
                 android:textSize="15sp" />
 
