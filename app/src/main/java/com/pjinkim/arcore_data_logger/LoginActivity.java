@@ -1,5 +1,6 @@
 package com.pjinkim.arcore_data_logger;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -40,6 +41,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
+    public static String userName;
 
     Button _guestloginButton;
     com.google.android.gms.common.SignInButton _googleloginButton;
@@ -59,8 +61,7 @@ public class LoginActivity extends AppCompatActivity {
 
         /*black icons on top bar like battery etc*/
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-
-        // Initialize variables
+        
 
         Random rd = new Random();
         int seed = rd.nextInt(10000000);
@@ -84,7 +85,8 @@ public class LoginActivity extends AppCompatActivity {
 
         _guestloginButton = (Button) findViewById(R.id.guest_login_button);
         _googleloginButton = (com.google.android.gms.common.SignInButton) findViewById(R.id.google_login_button);
-        final String userName = "guest-" + xx.substring(0,12);
+        String guestName = "guest-" + xx.substring(0,12);
+        userName = guestName;
 
         /*Setting up the clicklsteners*/
 
@@ -93,9 +95,6 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("id", userName);
-                intent.putExtras(bundle);
                 startActivity(intent);
             }
         });
@@ -156,10 +155,9 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(TAG, "handleSignInResult:personFamilyName " + personFamilyName);
                 Log.d(TAG, "handleSignInResult:personPhoto " + personPhoto);
 
-                Bundle bundle = new Bundle();
-                bundle.putString("id", personEmail);
+                userName = personEmail;
+
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                intent.putExtras(bundle);
                 startActivity(intent);
             }
         } catch (ApiException e) {

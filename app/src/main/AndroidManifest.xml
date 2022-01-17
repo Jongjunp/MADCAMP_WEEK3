@@ -25,7 +25,8 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".ResultActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:noHistory="true"/>
 
         <meta-data
             android:name="com.google.ar.core"
@@ -38,6 +39,7 @@
             android:name=".GameActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false"
+            android:noHistory="true"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
