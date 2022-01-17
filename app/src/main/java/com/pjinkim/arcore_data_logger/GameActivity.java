@@ -43,9 +43,6 @@ public class GameActivity extends AppCompatActivity {
     ImageButton shoot;
     TextView _username;
     TextView _kill;
-
-    public static String username;
-    ArrayList<String> opponentlist;
     int killnum;
 
     Gson gson = new Gson();
@@ -73,7 +70,6 @@ public class GameActivity extends AppCompatActivity {
     private Timer mInterfaceTimer = new Timer();
     private int mSecondCounter = 0;
 
-
     Timer timer = new Timer();
     TimerTask locUpdater = new TimerTask() {
         @Override
@@ -95,14 +91,7 @@ public class GameActivity extends AppCompatActivity {
 
         _username = (TextView) findViewById(R.id.username);
         _kill = (TextView) findViewById(R.id.kill);
-
-        //intent open
-        Intent intent = getIntent();
-        Bundle bundle = intent.getExtras();
-        username = bundle.getString("id");
-        opponentlist = bundle.getStringArrayList("opponents");
-        _username.setText(username);
-
+        _username.setText(LoginActivity.userName);
 
         tv=findViewById(R.id.tv);
         shoot = findViewById(R.id.shoot);
@@ -208,12 +197,12 @@ public class GameActivity extends AppCompatActivity {
                 public void run() {
                     MessageData data = gson.fromJson(args[0].toString(), MessageData.class);
                     Log.d(data.username,data.victim);
-                    if (data.victim.equals(username)) {
+                    if (data.victim.equals(LoginActivity.userName)) {
                         //bundle 설정 필요
-                        Log.d("username", username);
+                        Log.d("username", LoginActivity.userName);
                         Log.d("killnum", String.valueOf(killnum));
                         Bundle bundle = new Bundle();
-                        bundle.putString("username", username);
+                        bundle.putString("username", LoginActivity.userName);
                         bundle.putString("killer", data.username);
                         bundle.putInt("killnum", killnum);
                         bundle.putBoolean("win", false);
@@ -221,11 +210,12 @@ public class GameActivity extends AppCompatActivity {
                         intent.putExtras(bundle);
                         startActivity(intent);
                     }
-                    else if(data.username.equals(username)){
+                    //죽은 사람 판별 기준 하나 더 data로 받아오기
+                    else if(data.username.equals(LoginActivity.userName)){
                         killnum++;
                     }
                     else {
-                        String msg = username +"님이 " + data.victim +"님을 사살했습니다";
+                        String msg = data.username +"님이 " + data.victim +"님을 사살했습니다";
                         Toast.makeText(GameActivity.this , msg , Toast.LENGTH_SHORT).show();
                     }
 
@@ -244,7 +234,7 @@ public class GameActivity extends AppCompatActivity {
                     MessageData data = gson.fromJson(args[0].toString(), MessageData.class);
 
                     Bundle bundle = new Bundle();
-                    bundle.putString("username", username);
+                    bundle.putString("username", LoginActivity.userName);
                     bundle.putInt("killnum", killnum);
                     bundle.putString("killer", "-");
                     bundle.putBoolean("win", true);

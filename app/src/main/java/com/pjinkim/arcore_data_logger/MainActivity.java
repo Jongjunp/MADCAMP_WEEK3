@@ -2,6 +2,7 @@ package com.pjinkim.arcore_data_logger;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.gson.Gson;
 
 import java.net.URISyntaxException;
@@ -19,8 +21,6 @@ import java.util.ArrayList;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
-
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     Button _readyButton;
     static String[] pnames;
 
-    String id;
     String roomNameEnter;
 
     static Socket mSocket;
@@ -44,9 +43,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        Intent intent = getIntent();
-        Bundle bundle = intent.getExtras();
-        id = bundle.getString("id");
 
         //socket communication
         if (mSocket!=null) mSocket.disconnect();
@@ -63,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         _ready = (LinearLayout) findViewById(R.id.ready);
 
         _userName = (TextView) findViewById(R.id.username);
-        _userName.setText(id);
+        _userName.setText(LoginActivity.userName);
 
         _roomNameEnter = (EditText) findViewById(R.id.room_name_enter);
         _enterRoom = (Button) findViewById(R.id.btn_enter);
@@ -74,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 roomNameEnter = _roomNameEnter.getText().toString().trim();
-                mSocket.emit("enter",gson.toJson(new MessageData(id, roomNameEnter, "")));
+                mSocket.emit("enter",gson.toJson(new MessageData(LoginActivity.userName, roomNameEnter, "")));
                 _enter.setVisibility(View.INVISIBLE);
                 _search.setVisibility(View.VISIBLE);
                 mSocket.on("refuse", refuse);
@@ -97,12 +93,15 @@ public class MainActivity extends AppCompatActivity {
                     _search.setVisibility(View.INVISIBLE);
                     _ready.setVisibility(View.VISIBLE);
 
+                    //animation play
+                    LottieAnimationView anim = (LottieAnimationView) findViewById(R.id.img_ready);
+                    anim.playAnimation();
 
                     //when ready button pressed
                     _readyButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            mSocket.emit("ready",gson.toJson(new MessageData(id,roomNameEnter,"")));
+                            mSocket.emit("ready",gson.toJson(new MessageData(LoginActivity.userName,roomNameEnter,"")));
                             mSocket.on("accept", accpet);
                         }
                     });
@@ -120,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     MessageData data = gson.fromJson(args[0].toString(), MessageData.class);
-                    if(id.equals(data.username)){
+                    if(LoginActivity.userName.equals(data.username)){
                         mSocket.disconnect();
                         Toast.makeText(MainActivity.this,"이 방 번호는 사용중입니다. 다른 방 번호를 선택하세요",Toast.LENGTH_LONG).show();
                         _ready.setVisibility(View.INVISIBLE);
@@ -141,21 +140,7 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                     //set bundle
                     MessageData data = gson.fromJson(args[0].toString(), MessageData.class);
-                    ArrayList<String> enemyList = new ArrayList<String> ();
-                    String localusername = id;
-                    Bundle readybundle = new Bundle();
-                    readybundle.putString("id",localusername);
-                    for (int i=0; i< pnames.length; i++) {
-                        if (pnames[i].equals(id)){
-                            continue;
-                        }
-                        else {
-                            enemyList.add(pnames[i]);
-                        }
-                    }
-                    readybundle.putStringArrayList("opponents",enemyList);
                     Intent intent = new Intent(MainActivity.this, GameActivity.class) ;
-                    intent.putExtras(readybundle);
                     startActivity(intent);
                 }
             });

@@ -2,6 +2,7 @@ package com.pjinkim.arcore_data_logger;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -24,6 +25,8 @@ public class ResultActivity extends AppCompatActivity {
     //message
     String WIN = "WINNER WINNER CHICKEN DINNER!";
     String LOSE = "BETTER LUCK NEXT TIME";
+
+    public static Activity resultActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,10 +61,7 @@ public class ResultActivity extends AppCompatActivity {
         _returnToMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Bundle bundle = new Bundle();
-                bundle.putString("id", username);
                 Intent intent = new Intent(ResultActivity.this, MainActivity.class);
-                intent.putExtras(bundle);
                 startActivity(intent);
             }
         });
