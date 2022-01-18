@@ -9,7 +9,7 @@
 
 
 + [세부 구현](#세부-구현)
-    + [Single Vision Odometry](#SVO(위치-추적-알고리즘))
+    + [Single Vision Odometry](#SVO위치-추적-알고리즘)
     + [피격 판정](#피격-판정)
     + [소켓 통신](#소켓-통신)
 
