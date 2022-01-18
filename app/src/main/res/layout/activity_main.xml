@@ -163,6 +163,7 @@
                         android:background="@null"
                         android:fontFamily="@font/tekoregular"
                         android:hint="Room name"
+                        android:textColor="@color/dark"
                         android:inputType="textEmailAddress"
                         android:textSize="14sp" />
 
