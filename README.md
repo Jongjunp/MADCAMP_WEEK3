@@ -51,20 +51,20 @@
 
 ### 1. 로그인 화면
 
-![로그인 화면]()
+![로그인 화면](https://user-images.githubusercontent.com/96766204/149890294-6662fdb5-d510-4ff7-930a-a1bd1280f268.jpg)
 
 ### 2. 방 생성/참가 화면
 
-![방 생성 및 참가 화면]()
+![방 생성 및 참가 화면](https://user-images.githubusercontent.com/96766204/149890517-b632c09d-a811-44ae-8d9e-f8b98dbd4428.jpg)
 
 ### 3. 게임 준비 화면
 
-![게임 준비 화면]()
+![게임 준비 화면](https://user-images.githubusercontent.com/96766204/149890523-57ce6262-2133-47c5-b888-ba94f4b496c2.jpg)
 
 ### 4. 게임 화면
 
-![게임 화면]()
+![게임 화면](https://user-images.githubusercontent.com/96766204/149890921-04b3ab7e-e42f-4ec8-a58f-c86dd49c6ba9.PNG)
 
 ### 5. 결과창
 
-![결과창]()
+![결과창](https://user-images.githubusercontent.com/96766204/149891051-920ca7b2-06d4-49e6-b5b7-48c17b456f76.PNG)
