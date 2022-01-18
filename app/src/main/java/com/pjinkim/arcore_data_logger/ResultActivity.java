@@ -16,7 +16,6 @@ public class ResultActivity extends AppCompatActivity {
     int killnum;
     boolean win;
 
-    TextView _killNum;
     TextView _userName;
     TextView _killerName;
     TextView _winLoseMessage;
@@ -43,13 +42,11 @@ public class ResultActivity extends AppCompatActivity {
         win = bundle.getBoolean("win");
 
         _killerName = (TextView) findViewById(R.id.killername);
-        _killNum = (TextView) findViewById(R.id.killnum);
         _userName = (TextView) findViewById(R.id.username);
         _winLoseMessage = (TextView) findViewById(R.id.winlosemsg);
         _returnToMain = (Button) findViewById(R.id.btn_return);
 
         _killerName.setText("날 죽인사람은 \"" + killername+"\"");
-        _killNum.setText("Kill: "+killnum);
         _userName.setText(username);
         if (win) {
             _winLoseMessage.setText(WIN);

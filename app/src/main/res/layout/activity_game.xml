@@ -42,6 +42,7 @@
         android:layout_margin="15dp"
         android:fontFamily="@font/tekoregular"
         android:text="TextView"
+        android:textColor="@color/dark_yellow"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv"/>
 
@@ -52,6 +53,7 @@
         android:textAlignment="center"
         android:layout_margin="15dp"
         android:text="Kill: "
+        android:textColor="@color/dark_yellow"
         android:fontFamily="@font/tekoregular"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/username"/>

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/bg_color"
+    android:background="@color/dark"
     android:fillViewport="true"
     android:fitsSystemWindows="true">
 
@@ -32,7 +32,7 @@
             android:gravity="center"
             android:text="UserName"
             android:fontFamily="@font/tekoregular"
-            android:textColor="#3c4b5d"
+            android:textColor="@color/dark_yellow"
             android:textSize="22sp"
             android:textStyle="bold" />
 
@@ -62,7 +62,7 @@
                     android:gravity="center"
                     android:fontFamily="@font/tekoregular"
                     android:text="Players Found!"
-                    android:textColor="@color/darkgrey"
+                    android:textColor="@color/dark_yellow"
                     android:textSize="22sp" />
 
                 <TextView
@@ -85,7 +85,7 @@
                     android:padding="16dp"
                     android:fontFamily="@font/tekoregular"
                     android:text="Ready"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/dark_yellow" />
             </LinearLayout>
 
             <LinearLayout
@@ -109,7 +109,7 @@
                     android:gravity="center"
                     android:fontFamily="@font/tekoregular"
                     android:text="Waiting for players..."
-                    android:textColor="@color/darkgrey"
+                    android:textColor="@color/dark_yellow"
                     android:textSize="22sp" />
 
 
@@ -134,7 +134,7 @@
                         android:gravity="center"
                         android:fontFamily="@font/tekoregular"
                         android:text="Enter the room"
-                        android:textColor="#3c4b5d"
+                        android:textColor="@color/dark_yellow"
                         android:textSize="22sp" />
 
                     <TextView
@@ -144,7 +144,7 @@
                         android:gravity="center"
                         android:fontFamily="@font/tekoregular"
                         android:text="Enter the name of room"
-                        android:textColor="@color/darkgrey"
+                        android:textColor="@color/dark_yellow"
                         android:textSize="16sp" />
 
                 </LinearLayout>
@@ -179,7 +179,7 @@
                     android:textSize="15sp"
                     android:fontFamily="@font/tekoregular"
                     android:text="Enter"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/dark" />
 
             </LinearLayout>
 
